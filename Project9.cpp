@@ -17,19 +17,23 @@ int main(int argc, const char** argv)
 	for (auto& p : std::filesystem::directory_iterator(directoryPath)) {
 
 		const auto& ftime = std::filesystem::last_write_time(p);
-		auto stime = std::chrono::time_point_cast<system_clock::duration>(ftime - std::filesystem::file_time_type::clock::now()
-			+ system_clock::now());
+		auto stime = std::chrono::time_point_cast<system_clock::duration>(ftime - 
+			std::filesystem::file_time_type::clock::now() + system_clock::now());
 		std::time_t cftime = std::chrono::system_clock::to_time_t(stime);
+		char buffer[26];
+		struct tm timeinfo;
+		localtime_s(&timeinfo, &cftime);
+		asctime_s(buffer, sizeof(buffer), &timeinfo);		
 
 		if (std::filesystem::is_directory(p)) {			 
-			 std::cout << std::asctime(std::localtime(&cftime)) << " " << std::filesystem::file_size(p) 
+			 std::cout << buffer << " " << std::filesystem::file_size(p) 
 				 << " " << "<DIR> " << p.path().filename().string() << std::endl;
 		}
 
 		else {
 			++counter;
 			totalSize += std::filesystem::file_size(p);
-			std::cout << std::asctime(std::localtime(&cftime)) << " " << std::filesystem::file_size(p) 
+			std::cout << buffer << " " << std::filesystem::file_size(p)
 				<< " " << p.path().filename().string() << std::endl;
 		}
 	}
